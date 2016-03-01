@@ -1,10 +1,7 @@
 """Contains the main code for running the application."""
-from flask import Flask, request, redirect, url_for, render_template, make_response
-from flask_uploads import TEXT, UploadSet, UploadNotAllowed, configure_uploads
+from flask import Flask, request, render_template, make_response
 from io import StringIO
 import csv
-
-UPLOADED_DATAFILES_DEST = "/tmp/cansatprocessor"
 
 DEBUG = True
 HOST = "0.0.0.0"
@@ -13,13 +10,11 @@ PORT = 25564
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-
-datafiles = UploadSet("datafiles", TEXT)
-configure_uploads(app, datafiles)
-
 HEADER_SEP = ">"
 FIELD_SEP = "|"
 DATA_SEP = ":"
+
+ENCODING = "ascii"
 
 
 class ProcessingError(Exception):
@@ -60,7 +55,7 @@ def _process_line(line):
 
 def transform_file(fh):
     """Transform the file to CSV format."""
-    line = fh.readline().decode("ascii")
+    line = fh.readline().decode(ENCODING)
     first_line = _process_line(line)
 
     filebuf = StringIO()
@@ -70,28 +65,29 @@ def transform_file(fh):
     writer.writerow(first_line)
 
     for line in fh:
-        line = line.decode("ascii")
+        line = line.decode(ENCODING)
         try:
             row = _process_line(line)
-            print(row)
+            if DEBUG:
+                print(row)
             writer.writerow(row)
         except ProcessingError:
-            print("Processing error.")
+            if DEBUG:
+                print("Processing error.")
 
     return filebuf
 
 
-@app.route("/", methods=["GET", "POST"])
-@app.route("/upload", methods=["GET", "POST"])
+@app.route("/")
+@app.route("/upload")
 def upload():
-    if request.method == "POST" and "datafile" in request.files:
-        filename = datafiles.save(request.files["datafile"])
-        return redirect(url_for("return_"))
+    """Page where users upload file."""
     return render_template("upload.html")
 
 
 @app.route("/return", methods=["POST"])
 def return_():
+    """Returns the transformed data file."""
     file_ = request.files["datafile"]
     if not file_:
         return "No valid file! Try again"
@@ -103,6 +99,7 @@ def return_():
                 "of your data or ask Jeppe.")
     response = make_response(contents)
     response.headers["Content-Disposition"] = "attachment; filename=data.csv"
+    response.headers["Content-Type"] = "text/csv"
     return response
 
 
