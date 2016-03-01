@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}Index{% endblock title %}
+
+{% block body %}
+
+<h4>Ensure that the first line of the file isn't mangled</h4>
+
+<form action="{{ url_for('return_') }}" method="POST" enctype="multipart/form-data">
+
+<dl>
+
+<dt>File
+    <dd><input type=file name="datafile">
+
+</dl>
+
+<p><input type=submit value="Process">
+
+</form>
+
+{% endblock body %}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<title>CanSat Data Processor</title>
+<link rel=stylesheet href="{{ url_for('static', filename='style.css') }}">
+
+<div class="main" style="width:500px;margin: 0 auto;">
+    <a href="{{ url_for('upload') }}"><h1 id="title">CanSat Data Processor</h1></a>
+
+    <div id="body">
+        {% with flashes = get_flashed_messages() %}
+        {% if flashes %}
+        <div class="flashes">
+            <ul>
+                {% for f in flashes %}
+                <li>{{ f }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block body %}
+        {% endblock body %}
+    </div>
+
+    <div id="footer">
+        Made by Jeppe Klitgaard
+    </div>
+</div>
