@@ -7,6 +7,8 @@ import csv
 UPLOADED_DATAFILES_DEST = "/tmp/cansatprocessor"
 
 DEBUG = True
+HOST = "0.0.0.0"
+PORT = 25564
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -105,4 +107,4 @@ def return_():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=DEBUG, host=HOST, port=PORT)
